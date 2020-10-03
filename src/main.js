@@ -21,16 +21,23 @@ const TILE_HEIGHT = 40;
 const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
   constructor: function() {
     this.constructor$Scene();
-    this.ship = null;
+    this.board = null;
+    this.car = null;
+    this.carMover = null;
+    this.currentTime = null;
+    this.replayer = null;
   },
   create() {
     this.board = generateBoard(this);
     this.car = new Car(this, this.board);
     this.carMover = new CarMover(this, this.car);
+    this.replayer = new Replayer(this, this.car);
     this.physics.add.collider(this.car.sprite, this.board.staticGroup);
   },
-  update() {
+  update(time) {
+    this.currentTime = time;
     this.carMover.update();
+    this.replayer.update();
   }
 });
 
@@ -214,3 +221,71 @@ function generateBoard(scene) {
   board.finishGeneration();
   return board;
 }
+
+const AppendableFloatArray = util.extend(Object, 'AppendableFloatArray', {
+  constructor: function() {
+    this.sectionSize = 1024;
+    this.sections = [];
+    this.length = 0;
+  },
+  get(index) {
+    if(index < 0 || index >= this.length) {
+      throw (new Error('index out of bounds'));
+    }
+
+    const section = this.sections[Math.floor(index / this.sectionSize)];
+    return section[index % this.sectionSize];
+  },
+  append(value) {
+    const offset = this.length % this.sectionSize;
+    if(offset === 0) {
+      this.sections.push(new Float32Array(this.sectionSize));
+    }
+    this.sections[this.sections.length - 1][offset] = value;
+    this.length++;
+  },
+});
+
+const Ghost = util.extend(Object, 'Ghost', {
+  constructor: function(replayer) {
+    this.index = 0;
+    this.replayer = replayer;
+    const x = replayer.xPositions.get(0);
+    const y = replayer.yPositions.get(0);
+    this.sprite = replayer.group.create(x, y, 'ship');
+    this.sprite.setOrigin(0);
+  },
+  update() {
+    this.index++;
+    this.sprite.x = this.replayer.xPositions.get(this.index);
+    this.sprite.y = this.replayer.yPositions.get(this.index);
+  }
+});
+
+const Replayer = util.extend(Object, 'Replayer', {
+  constructor: function(scene, car) {
+    this.scene = scene;
+    this.car = car;
+    this.xPositions = new AppendableFloatArray();
+    this.yPositions = new AppendableFloatArray();
+    //this.times = new AppendableFloatArray();
+    this.group = scene.add.group();
+    this.ghosts = [];
+    this.lastSpawn = null;
+    this.spawnRate = 3 * 1000;
+  },
+  update() {
+    this.xPositions.append(this.car.sprite.x);
+    this.yPositions.append(this.car.sprite.y);
+    //this.times.append(this.scene.currentTime);
+
+    this.ghosts.forEach(ghost => ghost.update());
+
+    if(this.lastSpawn === null) {
+      this.lastSpawn = this.scene.currentTime;
+    } else if(this.lastSpawn + this.spawnRate < this.scene.currentTime) {
+      this.ghosts.push(new Ghost(this));
+      this.lastSpawn = this.scene.currentTime;
+    }
+  }
+});
