@@ -11,5 +11,13 @@
         "type": "image",
         "name": "ship",
         "url": "assets/ship.png"
+    }, {
+        "type": "image",
+        "name": "road-straight",
+        "url": "assets/road-straight.png"
+    }, {
+        "type": "image",
+        "name": "road-turn",
+        "url": "assets/road-turn.png"
     }]
 }
