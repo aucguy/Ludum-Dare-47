@@ -23,13 +23,13 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
   create() {
     const grid = this.add.tileSprite(0, 0, this.cameras.main.width,
       this.cameras.main.height, 'grid');
-    grid.setScale(2);
+    grid.setOrigin(0, 0);
     this.ship = new Ship(this);
-    new ShipMover(this, this.ship);
+    new CarMover(this, this.ship);
   }
 });
 
-const Ship = util.extend(Object, 'Ship', {
+const Car = util.extend(Object, 'Ship', {
   constructor: function(scene) {
     this.scene = scene;
     this.x = 0;
@@ -37,23 +37,22 @@ const Ship = util.extend(Object, 'Ship', {
     this.sprite = scene.add.sprite(this.x * TILE_WIDTH,
       this.y * TILE_HEIGHT, 'ship');
     this.sprite.setOrigin(0, 0);
-    this.sprite.setScale(2);
   },
   setPos(x, y) {
-    if(0 <= x && x < this.scene.cameras.main.width / TILE_WIDTH / 2) {
+    if(0 <= x && x < this.scene.cameras.main.width / TILE_WIDTH) {
       this.x = x;
     }
 
-    if(0 <= y && y < this.scene.cameras.main.height / TILE_HEIGHT / 2) {
+    if(0 <= y && y < this.scene.cameras.main.height / TILE_HEIGHT) {
       this.y = y;
     }
 
-    this.sprite.x = this.x * 2 * TILE_WIDTH;
-    this.sprite.y = this.y * 2 * TILE_HEIGHT;
+    this.sprite.x = this.x * TILE_WIDTH;
+    this.sprite.y = this.y * TILE_HEIGHT;
   }
 });
 
-const ShipMover = util.extend(Object, 'ShipMover', {
+const CarMover = util.extend(Object, 'ShipMover', {
   constructor: function(scene, ship) {
     scene.input.keyboard.addKey('A').on('down', () => {
       ship.setPos(ship.x - 1, ship.y);
