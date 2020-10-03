@@ -24,9 +24,6 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.ship = null;
   },
   create() {
-    const grid = this.add.tileSprite(0, 0, this.cameras.main.width,
-      this.cameras.main.height, 'grid');
-    grid.setOrigin(0, 0);
     this.board = generateBoard(this);
     this.car = new Car(this, this.board);
     this.carMover = new CarMover(this, this.car);
@@ -36,14 +33,6 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.carMover.update();
   }
 });
-
-/*const KeyBoardHandler = util.extend(Object, 'KeyboardHandler', {
-  constructor: function(scene) {
-    this.downKeys = new Set();
-    const keys = ['W', 'A', 'S', 'D'];
-    scene.input.keyboard.addKey()
-  }
-});*/
 
 const Car = util.extend(Object, 'Ship', {
   constructor: function(scene, board) {

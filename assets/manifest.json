@@ -1,14 +1,6 @@
 {
     "items": [{
         "type": "image",
-        "name": "test",
-        "url": "assets/test.png"
-    }, {
-        "type": "image",
-        "name": "grid",
-        "url": "assets/grid.png"
-    }, {
-        "type": "image",
         "name": "ship",
         "url": "assets/ship.png"
     }, {
