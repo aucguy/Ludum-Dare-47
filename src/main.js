@@ -97,17 +97,21 @@ const CarMover = util.extend(Object, 'ShipMover', {
     this.keyRight = this.scene.input.keyboard.addKey('D');
     this.keyUp = this.scene.input.keyboard.addKey('W');
     this.keyDown = this.scene.input.keyboard.addKey('S');
-    this.acceleration = 10
+    this.acceleration = 10;
+    this.friction = 0.9;
   },
   update() {
+    const velocity = this.car.sprite.body.velocity;
+    velocity.x *= this.friction;
+    velocity.y *= this.friction;
     if(this.keyLeft.isDown) {
-      this.car.sprite.body.velocity.x -= this.acceleration;
+      velocity.x -= this.acceleration;
     } else if(this.keyRight.isDown) {
-      this.car.sprite.body.velocity.x += this.acceleration;
+      velocity.x += this.acceleration;
     } else if(this.keyUp.isDown) {
-      this.car.sprite.body.velocity.y -= this.acceleration;
+      velocity.y -= this.acceleration;
     } else if(this.keyDown.isDown) {
-      this.car.sprite.body.velocity.y += this.acceleration;
+      velocity.y += this.acceleration;
     }
   }
 });
