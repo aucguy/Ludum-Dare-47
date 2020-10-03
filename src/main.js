@@ -6,14 +6,17 @@ export function init() {
     height: 480,
     parent: 'gameContainer',
     scene: new util.BootScene('play'),
-    pixelArt: true
+    pixelArt: true,
+    physics: {
+      default: 'arcade'
+    }
   });
 
   game.scene.add('play', new PlayScene());
 }
 
-const TILE_WIDTH = 20;
-const TILE_HEIGHT = 20;
+const TILE_WIDTH = 40;
+const TILE_HEIGHT = 40;
 
 const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
   constructor: function() {
@@ -25,19 +28,52 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
       this.cameras.main.height, 'grid');
     grid.setOrigin(0, 0);
     this.board = generateBoard(this);
-    this.car = new Car(this);
+    this.car = new Car(this, this.board);
     this.carMover = new CarMover(this, this.car);
+    this.physics.add.collider(this.car.sprite, this.board.staticGroup);
+  },
+  update() {
+    this.carMover.update();
   }
 });
 
-const Car = util.extend(Object, 'Ship', {
+/*const KeyBoardHandler = util.extend(Object, 'KeyboardHandler', {
   constructor: function(scene) {
+    this.downKeys = new Set();
+    const keys = ['W', 'A', 'S', 'D'];
+    scene.input.keyboard.addKey()
+  }
+});*/
+
+const Car = util.extend(Object, 'Ship', {
+  constructor: function(scene, board) {
     this.scene = scene;
+
     this.x = 0;
     this.y = 0;
-    this.sprite = scene.add.sprite(this.x * TILE_WIDTH,
+
+    let found = false;
+
+    for(let y = 0; y < board.height; y++) {
+      for(let x = 0; x < board.width; x++) {
+        if(board.get(x, y) != TILES.EMPTY) {
+          this.x = x;
+          this.y = y;
+          found = true;
+          break;
+        }
+      }
+      if(found) {
+        break;
+      }
+    }
+
+    this.sprite = scene.physics.add.sprite(this.x * TILE_WIDTH,
       this.y * TILE_HEIGHT, 'ship');
+    this.sprite.body.setCollideWorldBounds();
     this.sprite.setOrigin(0, 0);
+    this.xVel = 0;
+    this.yVel = 0;
   },
   setPos(x, y) {
     if(0 <= x && x < this.scene.cameras.main.width / TILE_WIDTH) {
@@ -55,21 +91,24 @@ const Car = util.extend(Object, 'Ship', {
 
 const CarMover = util.extend(Object, 'ShipMover', {
   constructor: function(scene, car) {
-    scene.input.keyboard.addKey('A').on('down', () => {
-      car.setPos(car.x - 1, car.y);
-    });
-
-    scene.input.keyboard.addKey('D').on('down', () => {
-      car.setPos(car.x + 1, car.y);
-    });
-
-    scene.input.keyboard.addKey('W').on('down', () => {
-      car.setPos(car.x, car.y - 1);
-    });
-
-    scene.input.keyboard.addKey('S').on('down', () => {
-      car.setPos(car.x, car.y + 1);
-    });
+    this.scene = scene;
+    this.car = car;
+    this.keyLeft = this.scene.input.keyboard.addKey('A');
+    this.keyRight = this.scene.input.keyboard.addKey('D');
+    this.keyUp = this.scene.input.keyboard.addKey('W');
+    this.keyDown = this.scene.input.keyboard.addKey('S');
+    this.acceleration = 10
+  },
+  update() {
+    if(this.keyLeft.isDown) {
+      this.car.sprite.body.velocity.x -= this.acceleration;
+    } else if(this.keyRight.isDown) {
+      this.car.sprite.body.velocity.x += this.acceleration;
+    } else if(this.keyUp.isDown) {
+      this.car.sprite.body.velocity.y -= this.acceleration;
+    } else if(this.keyDown.isDown) {
+      this.car.sprite.body.velocity.y += this.acceleration;
+    }
   }
 });
 
@@ -89,7 +128,7 @@ const Board = util.extend(Object, 'Board', {
     this.width = width;
     this.height = height;
 
-    this.group = scene.add.group();
+    this.group = null;
     this.board = new Uint8Array(width * height);
     this.board.fill(TILES.EMPTY);
   },
@@ -97,11 +136,32 @@ const Board = util.extend(Object, 'Board', {
     return this.board[y * this.width + x];
   },
   set(x, y, type) {
-    if(type === TILES.HORIZONTAL) {
-      let sprite = this.group.create(x * TILE_WIDTH, y * TILE_HEIGHT, 'road-straight');
-      sprite.setOrigin(0, 0);
-      sprite.setScale(2);
-      this.board[y * this.width + x] = type;
+    this.board[y * this.width + x] = type;
+  },
+  finishGeneration() {
+    this.staticGroup = this.scene.physics.add.staticGroup();
+    this.group = this.scene.add.group();
+
+    for(let x = 0; x < this.width; x++) {
+      for(let y = 0; y < this.height; y++) {
+        let type = this.get(x, y);
+        let key, group, physical;
+        if(type === TILES.HORIZONTAL) {
+          key = 'road-straight';
+          group = this.group;
+          physical = false;
+        } else {
+          key = 'road-empty';
+          group = this.staticGroup;
+          physical = true;
+        }
+        let sprite = group.create(x * TILE_WIDTH, y * TILE_HEIGHT, key);
+        sprite.setOrigin(0, 0);
+        sprite.setScale(4);
+        if(physical) {
+          sprite.refreshBody();
+        }
+      }
     }
   }
 });
@@ -158,5 +218,6 @@ function generateBoard(scene) {
     }
   }
 
+  board.finishGeneration();
   return board;
 }
