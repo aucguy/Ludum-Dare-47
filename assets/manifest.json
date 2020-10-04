@@ -31,5 +31,49 @@
         "type": "image",
         "name": "play-button",
         "url": "assets/play-button.png"
+    }, {
+        "type": "image",
+        "name": "digit-0",
+        "url": "assets/digit-0.png"
+    }, {
+        "type": "image",
+        "name": "digit-1",
+        "url": "assets/digit-1.png"
+    }, {
+        "type": "image",
+        "name": "digit-2",
+        "url": "assets/digit-2.png"
+    }, {
+        "type": "image",
+        "name": "digit-3",
+        "url": "assets/digit-3.png"
+    }, {
+        "type": "image",
+        "name": "digit-4",
+        "url": "assets/digit-4.png"
+    }, {
+        "type": "image",
+        "name": "digit-5",
+        "url": "assets/digit-5.png"
+    }, {
+        "type": "image",
+        "name": "digit-6",
+        "url": "assets/digit-6.png"
+    }, {
+        "type": "image",
+        "name": "digit-7",
+        "url": "assets/digit-7.png"
+    }, {
+        "type": "image",
+        "name": "digit-8",
+        "url": "assets/digit-8.png"
+    }, {
+        "type": "image",
+        "name": "digit-9",
+        "url": "assets/digit-9.png"
+    }, {
+        "type": "image",
+        "name": "score",
+        "url": "assets/score.png"
     }]
 }

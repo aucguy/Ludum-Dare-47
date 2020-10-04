@@ -42,6 +42,7 @@ const SCALE = 4;
 const PLAYER_SCALE = 4;
 const TILE_WIDTH = 8 * SCALE;
 const TILE_HEIGHT = 8 * SCALE;
+const HUD_HEIGHT = 2;
 
 const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
   constructor: function() {
@@ -53,6 +54,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.replayer = null;
     this.depot = null;
     this.ghostCollision = null;
+    this.hud = null;
   },
   create() {
     this.board = generateBoard(this);
@@ -61,6 +63,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.replayer = new Replayer(this, this.car);
     this.depot = new Depot(this, this.car, this.board);
     this.ghostCollision = new GhostCollision(this, this.replayer, this.car);
+    this.hud = new Hud(this, this.depot);
     this.physics.add.collider(this.car.sprite, this.board.staticGroup);
   },
   update(time) {
@@ -69,6 +72,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.depot.update();
     this.ghostCollision.update();
     this.replayer.update();
+    this.hud.update();
   }
 });
 
@@ -252,7 +256,7 @@ const MAX_RECT_HEIGHT = 20;
 
 function generateBoard(scene) {
   const width = scene.cameras.main.width / TILE_WIDTH;
-  const height = scene.cameras.main.height / TILE_HEIGHT;
+  const height = scene.cameras.main.height / TILE_HEIGHT - HUD_HEIGHT;
 
   const board = new Board(scene, width, height);
 
@@ -369,7 +373,7 @@ const Replayer = util.extend(Object, 'Replayer', {
     this.group = scene.physics.add.group();
     this.ghosts = [];
     this.lastSpawn = null;
-    this.spawnRate = 3 * 1000;
+    this.spawnRate = 10 * 1000;
   },
   update() {
     this.xPositions.append(this.car.sprite.x);
@@ -396,6 +400,7 @@ const Depot = util.extend(Object, 'Depot', {
     this.sprite.setOrigin(0, 0);
     this.sprite.setScale(SCALE);
     this.changePosition();
+    this.score = 0;
   },
   changePosition() {
     let choices = [];
@@ -415,6 +420,53 @@ const Depot = util.extend(Object, 'Depot', {
   update() {
     if(this.scene.physics.overlap(this.sprite, this.car.sprite)) {
       this.changePosition();
+      this.score++;
+    }
+  }
+});
+
+const Hud = util.extend(Object, 'Hud', {
+  constructor: function Hud(scene, depot) {
+    this.scene = scene;
+    this.depot = depot;
+    const y = scene.cameras.main.height - HUD_HEIGHT * TILE_HEIGHT;
+    const width = scene.cameras.main.width / SCALE;
+    const background = scene.add.tileSprite(0, y, width, TILE_HEIGHT / SCALE * HUD_HEIGHT, 'road-empty');
+    background.setScale(SCALE);
+    background.setOrigin(0, 0);
+
+    const scoreSprite = scene.add.sprite(0, y, 'score');
+    scoreSprite.setScale(HUD_HEIGHT * SCALE);
+    scoreSprite.setOrigin(0, 0);
+
+    this.scoreDigits = 3;
+    this.scoreSprites = [];
+    this.setScore(0);
+    this.lastScore = 0;
+  },
+  setScore(num) {
+    this.scoreSprites.forEach(x => x.destroy());
+    this.scoreSprites = [];
+    const offset = 3.5;
+
+    const y = this.scene.cameras.main.height - HUD_HEIGHT * TILE_HEIGHT;
+    let str = `${num % 1000}`.split('');
+    while(str.length < this.scoreDigits) {
+      str.unshift('0');
+    }
+
+    for(let i = 0; i < this.scoreDigits; i++) {
+      let key = 'digit-' + str[i];
+      const sprite = this.scene.add.sprite((i + offset) * HUD_HEIGHT * TILE_WIDTH, y, key);
+      sprite.setOrigin(0, 0);
+      sprite.setScale(HUD_HEIGHT * SCALE);
+      this.scoreSprites.push(sprite);
+    }
+  },
+  update() {
+    if(this.lastScore !== this.depot.score) {
+      this.setScore(this.depot.score);
+      this.lastScore = this.depot.score;
     }
   }
 });
