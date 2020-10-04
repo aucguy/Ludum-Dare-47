@@ -353,6 +353,7 @@ const GhostCollision = util.extend(Object, 'GhostCollision', {
       if(this.scene.physics.overlap(ghost.sprite, this.car.sprite)) {
         this.scene.game.scene.stop('play');
         this.scene.game.scene.start('main-menu');
+        break;
       }
     }
   }
