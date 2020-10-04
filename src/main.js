@@ -60,7 +60,7 @@ const LoseMenuScene = util.extend(Phaser.Scene, 'LoseMenuScene', {
 });
 
 const SCALE = 4;
-const PLAYER_SCALE = 4;
+const PLAYER_SCALE = 0.8;
 const TILE_WIDTH = 8 * SCALE;
 const TILE_HEIGHT = 8 * SCALE;
 const HUD_HEIGHT = 2;
