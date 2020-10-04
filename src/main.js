@@ -258,7 +258,7 @@ function generateBoard(scene) {
   const width = scene.cameras.main.width / TILE_WIDTH;
   const height = scene.cameras.main.height / TILE_HEIGHT - HUD_HEIGHT;
 
-  const board = new Board(scene, width, height);
+  const board = new Board(scene, width, height + HUD_HEIGHT);
 
   const rects = [];
 
@@ -430,10 +430,6 @@ const Hud = util.extend(Object, 'Hud', {
     this.scene = scene;
     this.depot = depot;
     const y = scene.cameras.main.height - HUD_HEIGHT * TILE_HEIGHT;
-    const width = scene.cameras.main.width / SCALE;
-    const background = scene.add.tileSprite(0, y, width, TILE_HEIGHT / SCALE * HUD_HEIGHT, 'road-empty');
-    background.setScale(SCALE);
-    background.setOrigin(0, 0);
 
     const scoreSprite = scene.add.sprite(0, y, 'score');
     scoreSprite.setScale(HUD_HEIGHT * SCALE);
