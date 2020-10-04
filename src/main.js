@@ -15,8 +15,10 @@ export function init() {
   game.scene.add('play', new PlayScene());
 }
 
-const TILE_WIDTH = 8 * 4;
-const TILE_HEIGHT = 8 * 4;
+const SCALE = 4;
+const PLAYER_SCALE = 4;
+const TILE_WIDTH = 8 * SCALE;
+const TILE_HEIGHT = 8 * SCALE;
 
 const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
   constructor: function() {
@@ -47,7 +49,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
   }
 });
 
-const Car = util.extend(Object, 'Ship', {
+const Car = util.extend(Object, 'Car', {
   constructor: function(scene, board) {
     this.scene = scene;
 
@@ -74,6 +76,8 @@ const Car = util.extend(Object, 'Ship', {
       this.y * TILE_HEIGHT, 'ship');
     this.sprite.body.setCollideWorldBounds();
     this.sprite.setOrigin(0, 0);
+    this.sprite.setScale(PLAYER_SCALE);
+    this.sprite.refreshBody();
     this.xVel = 0;
     this.yVel = 0;
   },
@@ -91,7 +95,7 @@ const Car = util.extend(Object, 'Ship', {
   }
 });
 
-const CarMover = util.extend(Object, 'ShipMover', {
+const CarMover = util.extend(Object, 'CarMover', {
   constructor: function(scene, car) {
     this.scene = scene;
     this.car = car;
@@ -208,7 +212,7 @@ const Board = util.extend(Object, 'Board', {
         }
         let sprite = group.create(x * TILE_WIDTH, y * TILE_HEIGHT, key);
         sprite.setOrigin(0, 0);
-        sprite.setScale(4);
+        sprite.setScale(SCALE);
         if(physical) {
           sprite.refreshBody();
         }
@@ -305,11 +309,28 @@ const Ghost = util.extend(Object, 'Ghost', {
     const y = replayer.yPositions.get(0);
     this.sprite = replayer.group.create(x, y, 'ghost');
     this.sprite.setOrigin(0);
+    this.sprite.setScale(PLAYER_SCALE);
+    this.sprite.refreshBody();
   },
   update() {
     this.index++;
     this.sprite.x = this.replayer.xPositions.get(this.index);
     this.sprite.y = this.replayer.yPositions.get(this.index);
+  }
+});
+
+const GhostCollision = util.extend(Object, 'GhostCollision', {
+  constructor: function(scene, replayer, car) {
+    this.scene = scene;
+    this.replayer = replayer;
+    this.car = car;
+  },
+  update() {
+    for(let ghost of this.replayer.ghosts) {
+      if(this.scene.physics.overlap(ghost.sprite, this.car.sprite)) {
+        this.scene.game.scene.start('play');
+      }
+    }
   }
 });
 
@@ -348,7 +369,7 @@ const Depot = util.extend(Object, 'Depot', {
     this.board = board;
     this.sprite = scene.physics.add.sprite(0, 0, 'depot');
     this.sprite.setOrigin(0, 0);
-    this.sprite.setScale(4);
+    this.sprite.setScale(SCALE);
     this.changePosition();
   },
   changePosition() {
@@ -369,21 +390,6 @@ const Depot = util.extend(Object, 'Depot', {
   update() {
     if(this.scene.physics.overlap(this.sprite, this.car.sprite)) {
       this.changePosition();
-    }
-  }
-});
-
-const GhostCollision = util.extend(Object, 'GhostCollision', {
-  constructor: function(scene, replayer, car) {
-    this.scene = scene;
-    this.replayer = replayer;
-    this.car = car;
-  },
-  update() {
-    for(let ghost of this.replayer.ghosts) {
-      if(this.scene.physics.overlap(ghost.sprite, this.car.sprite)) {
-        this.scene.game.scene.start('play');
-      }
     }
   }
 });
