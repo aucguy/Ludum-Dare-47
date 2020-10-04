@@ -15,8 +15,8 @@ export function init() {
   game.scene.add('play', new PlayScene());
 }
 
-const TILE_WIDTH = 40;
-const TILE_HEIGHT = 40;
+const TILE_WIDTH = 8 * 4;
+const TILE_HEIGHT = 8 * 4;
 
 const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
   constructor: function() {
