@@ -59,8 +59,8 @@ const LoseMenuScene = util.extend(Phaser.Scene, 'LoseMenuScene', {
   }
 });
 
-const SCALE = 4;
-const PLAYER_SCALE = 0.8;
+const SCALE = 5;
+const PLAYER_SCALE = 1.5;
 const TILE_WIDTH = 8 * SCALE;
 const TILE_HEIGHT = 8 * SCALE;
 const HUD_HEIGHT = 2;
@@ -269,7 +269,8 @@ const Board = util.extend(Object, 'Board', {
   }
 });
 
-const RECT_COUNT = 5;
+const RECT_COUNT = 4;
+const MAX_TRIES = 100;
 const MIN_RECT_WIDTH = 7;
 const MAX_RECT_WIDTH = 20;
 const MIN_RECT_HEIGHT = 7;
@@ -282,8 +283,11 @@ function generateBoard(scene) {
   const board = new Board(scene, width, height + HUD_HEIGHT);
 
   const rects = [];
+  let tries = 0;
 
-  while(rects.length < RECT_COUNT) {
+  while(rects.length < RECT_COUNT && tries < MAX_TRIES) {
+    tries++;
+
     const left = Math.floor(Phaser.Math.RND.integerInRange(0, width) / 2) * 2;
     const top = Math.floor(Phaser.Math.RND.integerInRange(0, height) / 2) * 2;
 
