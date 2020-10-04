@@ -12,8 +12,20 @@ export function init() {
     }
   });
 
+  game.scene.add('main-menu', new MainMenuScene());
   game.scene.add('play', new PlayScene());
 }
+
+const MainMenuScene = util.extend(Phaser.Scene, 'MainMenuScene', {
+  constructor: function() {
+    this.constructor$Scene();
+  },
+  create() {
+    const background = this.add.sprite(0, 0, 'menu-background');
+    background.setScale(16);
+    background.setOrigin(0, 0);
+  }
+});
 
 const SCALE = 4;
 const PLAYER_SCALE = 4;
@@ -328,7 +340,8 @@ const GhostCollision = util.extend(Object, 'GhostCollision', {
   update() {
     for(let ghost of this.replayer.ghosts) {
       if(this.scene.physics.overlap(ghost.sprite, this.car.sprite)) {
-        this.scene.game.scene.start('play');
+        this.scene.game.scene.stop('play');
+        this.scene.game.scene.start('main-menu');
       }
     }
   }

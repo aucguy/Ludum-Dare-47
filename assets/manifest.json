@@ -23,5 +23,9 @@
         "type": "image",
         "name": "ghost",
         "url": "assets/ghost.png"
+    }, {
+        "type": "image",
+        "name": "menu-background",
+        "url": "assets/menu-background.png"
     }]
 }
