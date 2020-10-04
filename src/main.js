@@ -26,17 +26,20 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.carMover = null;
     this.currentTime = null;
     this.replayer = null;
+    this.depot = null;
   },
   create() {
     this.board = generateBoard(this);
     this.car = new Car(this, this.board);
     this.carMover = new CarMover(this, this.car);
     this.replayer = new Replayer(this, this.car);
+    this.depot = new Depot(this, this.car, this.board);
     this.physics.add.collider(this.car.sprite, this.board.staticGroup);
   },
   update(time) {
     this.currentTime = time;
     this.carMover.update();
+    this.depot.update();
     this.replayer.update();
   }
 });
@@ -286,6 +289,38 @@ const Replayer = util.extend(Object, 'Replayer', {
     } else if(this.lastSpawn + this.spawnRate < this.scene.currentTime) {
       this.ghosts.push(new Ghost(this));
       this.lastSpawn = this.scene.currentTime;
+    }
+  }
+});
+
+const Depot = util.extend(Object, 'Depot', {
+  constructor: function(scene, car, board) {
+    this.scene = scene;
+    this.car = car;
+    this.board = board;
+    this.sprite = scene.physics.add.sprite(0, 0, 'depot');
+    this.sprite.setOrigin(0, 0);
+    this.sprite.setScale(4);
+    this.changePosition();
+  },
+  changePosition() {
+    let choices = [];
+
+    for(let x = 0; x < this.board.width; x++) {
+      for(let y = 0; y < this.board.height; y++) {
+        if(this.board.get(x, y) != TILES.EMPTY) {
+          choices.push({ x, y });
+        }
+      }
+    }
+
+    const choice = Phaser.Math.RND.pick(choices);
+    this.sprite.x = choice.x * TILE_WIDTH;
+    this.sprite.y = choice.y * TILE_HEIGHT;
+  },
+  update() {
+    if(this.scene.physics.overlap(this.sprite, this.car.sprite)) {
+      this.changePosition();
     }
   }
 });

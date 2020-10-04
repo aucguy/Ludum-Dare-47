@@ -15,5 +15,9 @@
         "type": "image",
         "name": "road-empty",
         "url": "assets/road-empty.png"
+    }, {
+        "type": "image",
+        "name": "depot",
+        "url": "assets/depot.png"
     }]
 }
