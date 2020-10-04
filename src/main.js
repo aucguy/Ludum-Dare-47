@@ -87,7 +87,18 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.ghostCollision = new GhostCollision(this, this.replayer, this.car, this.depot);
     this.hud = new Hud(this, this.depot);
     this.physics.add.collider(this.car.sprite, this.board.staticGroup);
-    this.sound.play('music');
+
+    let rate = 1;
+    const music = this.sound.add('music');
+    music.play();
+    music.on('complete', () => {
+      rate += 0.1;
+      if(rate > 2) {
+        rate = 2;
+      }
+      music.setRate(rate);
+      music.play();
+    });
   },
   update(time) {
     this.currentTime = time;
@@ -96,9 +107,6 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.ghostCollision.update();
     this.replayer.update();
     this.hud.update();
-  },
-  stop() {
-    this.sound.stop('music');
   }
 });
 
