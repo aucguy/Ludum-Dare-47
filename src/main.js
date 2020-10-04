@@ -98,18 +98,63 @@ const CarMover = util.extend(Object, 'ShipMover', {
     this.keyDown = this.scene.input.keyboard.addKey('S');
     this.acceleration = 10;
     this.friction = 0.9;
+    this.horizontalDirection = 'none';
+    this.verticalDirection = 'none';
   },
   update() {
     const velocity = this.car.sprite.body.velocity;
     velocity.x *= this.friction;
     velocity.y *= this.friction;
-    if(this.keyLeft.isDown) {
+
+    if(this.horizontalDirection === 'left' && !this.keyLeft.isDown) {
+      if(this.keyRight.isDown) {
+        this.horizontalDirection = 'right';
+      } else {
+        this.horizontalDirection = 'none';
+      }
+    } else if(this.horizontalDirection === 'right' && !this.keyRight.isDown) {
+      if(this.keyLeft.isDown) {
+        this.horizontalDirection = 'left';
+      } else {
+        this.horizontalDirection = 'none';
+      }
+    } else if(this.horizontalDirection === 'none') {
+      if(this.keyLeft.isDown) {
+        this.horizontalDirection = 'left';
+      } else if(this.keyRight.isDown) {
+        this.horizontalDirection = 'right';
+      }
+    }
+
+    if(this.verticalDirection === 'up' && !this.keyUp.isDown) {
+      if(this.keyDown.isDown) {
+        this.verticalDirection = 'down';
+      } else {
+        this.verticalDirection = 'none';
+      }
+    } else if(this.verticalDirection === 'down' && !this.keyDown.isDown) {
+      if(this.keyUp.isDown) {
+        this.verticalDirection = 'up';
+      } else {
+        this.verticalDirection = 'none';
+      }
+    } else if(this.verticalDirection === 'none') {
+      if(this.keyUp.isDown) {
+        this.verticalDirection = 'up';
+      } else if(this.keyDown.isDown) {
+        this.verticalDirection = 'down';
+      }
+    }
+
+    if(this.horizontalDirection === 'left') {
       velocity.x -= this.acceleration;
-    } else if(this.keyRight.isDown) {
+    } else if(this.horizontalDirection === 'right') {
       velocity.x += this.acceleration;
-    } else if(this.keyUp.isDown) {
+    }
+
+    if(this.verticalDirection === 'up') {
       velocity.y -= this.acceleration;
-    } else if(this.keyDown.isDown) {
+    } else if(this.verticalDirection === 'down') {
       velocity.y += this.acceleration;
     }
   }
