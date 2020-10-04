@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "aucguy",
-  "license": "ISC",
+  "license": "",
   "dependencies": {
     "aucguy-ludum-dare-base": "^1.0.9"
   },
