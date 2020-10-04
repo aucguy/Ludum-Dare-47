@@ -425,20 +425,18 @@ const Depot = util.extend(Object, 'Depot', {
   }
 });
 
-const Hud = util.extend(Object, 'Hud', {
-  constructor: function Hud(scene, depot) {
+const Score = util.extend(Object, 'Score', {
+  constructor: function Score(scene, score) {
     this.scene = scene;
-    this.depot = depot;
-    const y = scene.cameras.main.height - HUD_HEIGHT * TILE_HEIGHT;
 
+    const y = scene.cameras.main.height - HUD_HEIGHT * TILE_HEIGHT;
     const scoreSprite = scene.add.sprite(0, y, 'score');
     scoreSprite.setScale(HUD_HEIGHT * SCALE);
     scoreSprite.setOrigin(0, 0);
 
     this.scoreDigits = 3;
     this.scoreSprites = [];
-    this.setScore(0);
-    this.lastScore = 0;
+    this.setScore(score);
   },
   setScore(num) {
     this.scoreSprites.forEach(x => x.destroy());
@@ -458,10 +456,18 @@ const Hud = util.extend(Object, 'Hud', {
       sprite.setScale(HUD_HEIGHT * SCALE);
       this.scoreSprites.push(sprite);
     }
+  }
+});
+
+const Hud = util.extend(Object, 'Hud', {
+  constructor: function Hud(scene, depot) {
+    this.scene = scene;
+    this.depot = depot;
+    this.score = new Score(scene, 0);
   },
   update() {
     if(this.lastScore !== this.depot.score) {
-      this.setScore(this.depot.score);
+      this.score.setScore(this.depot.score);
       this.lastScore = this.depot.score;
     }
   }
