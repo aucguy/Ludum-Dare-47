@@ -255,7 +255,7 @@ const Ghost = util.extend(Object, 'Ghost', {
     this.replayer = replayer;
     const x = replayer.xPositions.get(0);
     const y = replayer.yPositions.get(0);
-    this.sprite = replayer.group.create(x, y, 'ship');
+    this.sprite = replayer.group.create(x, y, 'ghost');
     this.sprite.setOrigin(0);
   },
   update() {

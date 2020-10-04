@@ -19,5 +19,9 @@
         "type": "image",
         "name": "depot",
         "url": "assets/depot.png"
+    }, {
+        "type": "image",
+        "name": "ghost",
+        "url": "assets/ghost.png"
     }]
 }
