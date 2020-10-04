@@ -13,7 +13,24 @@ export function init() {
   });
 
   game.scene.add('main-menu', new MainMenuScene());
+  game.scene.add('lose-menu', new LoseMenuScene());
   game.scene.add('play', new PlayScene());
+}
+
+function menuBase(scene, spriteScale) {
+  const background = scene.add.sprite(0, 0, 'menu-background');
+  background.setScale(spriteScale);
+  background.setOrigin(0, 0);
+
+  const width = scene.cameras.main.width;
+  const height = scene.cameras.main.height;
+  const playButton = scene.add.sprite(width / 2, height / 2, 'play-button');
+  playButton.setScale(spriteScale);
+  playButton.setInteractive();
+  playButton.on('pointerdown', () => {
+    scene.scene.stop('main-menu');
+    scene.scene.start('play');
+  });
 }
 
 const MainMenuScene = util.extend(Phaser.Scene, 'MainMenuScene', {
@@ -22,19 +39,23 @@ const MainMenuScene = util.extend(Phaser.Scene, 'MainMenuScene', {
     this.spriteScale = 16;
   },
   create() {
-    const background = this.add.sprite(0, 0, 'menu-background');
-    background.setScale(this.spriteScale);
-    background.setOrigin(0, 0);
+    menuBase(this, this.spriteScale);
+  }
+});
 
-    const width = this.cameras.main.width;
-    const height = this.cameras.main.height;
-    const playButton = this.add.sprite(width / 2, height / 2, 'play-button');
-    playButton.setScale(this.spriteScale);
-    playButton.setInteractive();
-    playButton.on('pointerdown', () => {
-      this.scene.stop('main-menu');
-      this.scene.start('play');
-    });
+const LoseMenuScene = util.extend(Phaser.Scene, 'LoseMenuScene', {
+  constructor: function() {
+    this.constructor$Scene();
+    this.spriteScale = 16;
+    this.scoreNum = 0;
+    this.score = null;
+  },
+  init(data) {
+    this.scoreNum = data.scoreNum;
+  },
+  create() {
+    menuBase(this, this.spriteScale);
+    this.score = new Score(this, this.scoreNum);
   }
 });
 
@@ -62,7 +83,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.carMover = new CarMover(this, this.car);
     this.replayer = new Replayer(this, this.car);
     this.depot = new Depot(this, this.car, this.board);
-    this.ghostCollision = new GhostCollision(this, this.replayer, this.car);
+    this.ghostCollision = new GhostCollision(this, this.replayer, this.car, this.depot);
     this.hud = new Hud(this, this.depot);
     this.physics.add.collider(this.car.sprite, this.board.staticGroup);
   },
@@ -347,16 +368,17 @@ const Ghost = util.extend(Object, 'Ghost', {
 });
 
 const GhostCollision = util.extend(Object, 'GhostCollision', {
-  constructor: function GhostCollision(scene, replayer, car) {
+  constructor: function GhostCollision(scene, replayer, car, depot) {
     this.scene = scene;
     this.replayer = replayer;
     this.car = car;
+    this.depot = depot;
   },
   update() {
     for(let ghost of this.replayer.ghosts) {
       if(this.scene.physics.overlap(ghost.sprite, this.car.sprite)) {
         this.scene.game.scene.stop('play');
-        this.scene.game.scene.start('main-menu');
+        this.scene.game.scene.start('lose-menu', { scoreNum: this.depot.score });
         break;
       }
     }
