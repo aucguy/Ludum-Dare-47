@@ -15,6 +15,7 @@ export function init() {
   game.scene.add('main-menu', new MainMenuScene());
   game.scene.add('lose-menu', new LoseMenuScene());
   game.scene.add('play', new PlayScene());
+  return game;
 }
 
 function menuBase(scene, spriteScale) {
@@ -86,6 +87,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.ghostCollision = new GhostCollision(this, this.replayer, this.car, this.depot);
     this.hud = new Hud(this, this.depot);
     this.physics.add.collider(this.car.sprite, this.board.staticGroup);
+    this.sound.play('music');
   },
   update(time) {
     this.currentTime = time;
@@ -94,6 +96,9 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.ghostCollision.update();
     this.replayer.update();
     this.hud.update();
+  },
+  stop() {
+    this.sound.stop('music');
   }
 });
 
@@ -383,6 +388,8 @@ const GhostCollision = util.extend(Object, 'GhostCollision', {
       if(this.scene.physics.overlap(ghost.sprite, this.car.sprite)) {
         this.scene.game.scene.stop('play');
         this.scene.game.scene.start('lose-menu', { scoreNum: this.depot.score });
+        this.scene.sound.stopAll();
+        this.scene.sound.play('lose');
         break;
       }
     }
@@ -447,6 +454,7 @@ const Depot = util.extend(Object, 'Depot', {
     if(this.scene.physics.overlap(this.sprite, this.car.sprite)) {
       this.changePosition();
       this.score++;
+      this.scene.sound.play('score-sound');
     }
   }
 });

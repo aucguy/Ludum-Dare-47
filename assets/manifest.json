@@ -75,5 +75,17 @@
         "type": "image",
         "name": "score",
         "url": "assets/score.png"
+    }, {
+        "type": "audio",
+        "name": "lose",
+        "url": "assets/lose.wav"
+    }, {
+        "type": "audio",
+        "name": "score-sound",
+        "url": "assets/score.wav"
+    }, {
+        "type": "audio",
+        "name": "music",
+        "url": "assets/music.mp3"
     }]
 }
