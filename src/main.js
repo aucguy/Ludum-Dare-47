@@ -27,6 +27,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.currentTime = null;
     this.replayer = null;
     this.depot = null;
+    this.ghostCollision = null;
   },
   create() {
     this.board = generateBoard(this);
@@ -34,12 +35,14 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
     this.carMover = new CarMover(this, this.car);
     this.replayer = new Replayer(this, this.car);
     this.depot = new Depot(this, this.car, this.board);
+    this.ghostCollision = new GhostCollision(this, this.replayer, this.car);
     this.physics.add.collider(this.car.sprite, this.board.staticGroup);
   },
   update(time) {
     this.currentTime = time;
     this.carMover.update();
     this.depot.update();
+    this.ghostCollision.update();
     this.replayer.update();
   }
 });
@@ -317,7 +320,7 @@ const Replayer = util.extend(Object, 'Replayer', {
     this.xPositions = new AppendableFloatArray();
     this.yPositions = new AppendableFloatArray();
     //this.times = new AppendableFloatArray();
-    this.group = scene.add.group();
+    this.group = scene.physics.add.group();
     this.ghosts = [];
     this.lastSpawn = null;
     this.spawnRate = 3 * 1000;
@@ -366,6 +369,21 @@ const Depot = util.extend(Object, 'Depot', {
   update() {
     if(this.scene.physics.overlap(this.sprite, this.car.sprite)) {
       this.changePosition();
+    }
+  }
+});
+
+const GhostCollision = util.extend(Object, 'GhostCollision', {
+  constructor: function(scene, replayer, car) {
+    this.scene = scene;
+    this.replayer = replayer;
+    this.car = car;
+  },
+  update() {
+    for(let ghost of this.replayer.ghosts) {
+      if(this.scene.physics.overlap(ghost.sprite, this.car.sprite)) {
+        this.scene.game.scene.start('play');
+      }
     }
   }
 });
