@@ -5,7 +5,7 @@ export function init() {
     width: 640,
     height: 480,
     parent: 'gameContainer',
-    scene: new util.BootScene('play'),
+    scene: new util.BootScene('main-menu'),
     pixelArt: true,
     physics: {
       default: 'arcade'
@@ -19,11 +19,22 @@ export function init() {
 const MainMenuScene = util.extend(Phaser.Scene, 'MainMenuScene', {
   constructor: function() {
     this.constructor$Scene();
+    this.spriteScale = 16;
   },
   create() {
     const background = this.add.sprite(0, 0, 'menu-background');
-    background.setScale(16);
+    background.setScale(this.spriteScale);
     background.setOrigin(0, 0);
+
+    const width = this.cameras.main.width;
+    const height = this.cameras.main.height;
+    const playButton = this.add.sprite(width / 2, height / 2, 'play-button');
+    playButton.setScale(this.spriteScale);
+    playButton.setInteractive();
+    playButton.on('pointerdown', () => {
+      this.scene.stop('main-menu');
+      this.scene.start('play');
+    });
   }
 });
 
@@ -62,7 +73,7 @@ const PlayScene = util.extend(Phaser.Scene, 'PlayScene', {
 });
 
 const Car = util.extend(Object, 'Car', {
-  constructor: function(scene, board) {
+  constructor: function Car(scene, board) {
     this.scene = scene;
 
     this.x = 0;
@@ -108,7 +119,7 @@ const Car = util.extend(Object, 'Car', {
 });
 
 const CarMover = util.extend(Object, 'CarMover', {
-  constructor: function(scene, car) {
+  constructor: function CarMover(scene, car) {
     this.scene = scene;
     this.car = car;
     this.keyLeft = this.scene.input.keyboard.addKey('A');
@@ -190,7 +201,7 @@ const TILES = {
 };
 
 const Board = util.extend(Object, 'Board', {
-  constructor: function(scene, width, height) {
+  constructor: function Board(scene, width, height) {
     this.scene = scene;
     this.width = width;
     this.height = height;
@@ -290,7 +301,7 @@ function generateBoard(scene) {
 }
 
 const AppendableFloatArray = util.extend(Object, 'AppendableFloatArray', {
-  constructor: function() {
+  constructor: function AppendableFloatArray() {
     this.sectionSize = 1024;
     this.sections = [];
     this.length = 0;
@@ -332,7 +343,7 @@ const Ghost = util.extend(Object, 'Ghost', {
 });
 
 const GhostCollision = util.extend(Object, 'GhostCollision', {
-  constructor: function(scene, replayer, car) {
+  constructor: function GhostCollision(scene, replayer, car) {
     this.scene = scene;
     this.replayer = replayer;
     this.car = car;
@@ -376,7 +387,7 @@ const Replayer = util.extend(Object, 'Replayer', {
 });
 
 const Depot = util.extend(Object, 'Depot', {
-  constructor: function(scene, car, board) {
+  constructor: function Depot(scene, car, board) {
     this.scene = scene;
     this.car = car;
     this.board = board;

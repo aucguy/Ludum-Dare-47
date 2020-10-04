@@ -27,5 +27,9 @@
         "type": "image",
         "name": "menu-background",
         "url": "assets/menu-background.png"
+    }, {
+        "type": "image",
+        "name": "play-button",
+        "url": "assets/play-button.png"
     }]
 }
